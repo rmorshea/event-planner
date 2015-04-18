@@ -37,15 +37,29 @@ var svg = d3.select("body").append("svg:svg")
   .append("svg:g")
     .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")");
 
-d3.json("readme.json", function(root) {
-  path = svg.data([root]).selectAll("path")
-      .data(partition.nodes)
-    .enter().append("svg:path")
-      .attr("d", arc)
-      .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
-      .on("click", magnify)
-      .each(stash);
+
+//all data from json
+d3.json("source.json", function(root) {
+  var elem = svg.data([root]).selectAll("path")
+    .data(partition.nodes);
+  
+  var elemEnter = elem.enter().append("svg:path")
+    .attr("d", arc)
+    .attr("id", function(d) { return d.name;})
+    .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
+    .on("click", magnify)
+    .each(stash);
+
+  var text = elemEnter.append("text")
+    .attr("pref",function(d) {return d.id;})
+
+  text.append("textPath")
+    .attr("xlink:href", function(d) {return d.pref;})
+    .attr("stroke","black")
+    .text(function(d) {return d.name;})
 });
+
+
 
 // Distort the specified node to 80% of its parent.
 function magnify(node) {
